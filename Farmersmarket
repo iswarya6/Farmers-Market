@@ -1,0 +1,151 @@
+package Market;
+
+import java.util.*;
+
+// Item sold by farmer
+class Item {
+    String name; // name of the item
+    int count;   // how many are available
+
+    Item(String name, int count) {
+        this.name = name;
+        this.count = count;
+    }
+
+    // Try to buy a certain number of items
+    void buy(int amount) {
+        if (count >= amount) {
+            count -= amount;
+            System.out.println("Bought " + amount + " of " + name);
+        } else {
+            System.out.println("Not enough " + name + " in stock.");
+        }
+    }
+
+    // Return item as a string
+    public String toString() {
+        return name + " (" + count + ")";
+    }
+}
+
+// Farmer who sells items
+class Farmer {
+    String name; // farmer's name
+    List<Item> stock = new ArrayList<>(); // list of items
+
+    Farmer(String name) {
+        this.name = name;
+    }
+
+    // Add a new item to the farmer's stock
+    void addItem(String name, int count) {
+        stock.add(new Item(name, count));
+    }
+
+    // Check if the farmer has the item
+    boolean hasItem(String item) {
+        for (Item p : stock) {
+            if (nameMatches(item, p.name) && p.count > 0) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // Show the items the farmer has
+    void showItems() {
+        System.out.println("Farmer: " + name);
+        for (Item p : stock) {
+            System.out.println("- " + p);
+        }
+    }
+
+    // Try to buy an item from this farmer
+    boolean buy(String item, int qty) {
+        for (Item p : stock) {
+            if (nameMatches(item, p.name)) {
+                p.buy(qty);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // Check if two item names match (e.g. Apple and Apples)
+    private boolean nameMatches(String a, String b) {
+        a = a.trim().toLowerCase();
+        b = b.trim().toLowerCase();
+
+        return a.equals(b) ||
+               (a.endsWith("s") && a.substring(0, a.length() - 1).equals(b)) ||
+               (b.endsWith("s") && b.substring(0, b.length() - 1).equals(a));
+    }
+}
+
+// Main program
+public class Farmersmarket {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+
+        // Create farmers and their items
+        Farmer f1 = new Farmer("Aish");
+        f1.addItem("Apple", 12);
+        f1.addItem("Okra", 15);
+        f1.addItem("Drumstick", 18);
+        f1.addItem("Pomegranate", 8);
+        f1.addItem("Cabbage", 22);
+
+        Farmer f2 = new Farmer("Raj");
+        f2.addItem("Guava", 16);
+        f2.addItem("Banana", 25);
+        f2.addItem("Eggplant", 20);
+        f2.addItem("Custard Apple", 10);
+        f2.addItem("Tomato", 14);
+
+        List<Farmer> farmers = Arrays.asList(f1, f2);
+
+        while (true) {
+            String item;
+            boolean found;
+
+            // Ask user what they want to search for
+            do {
+                System.out.print("Enter item to search (or type 'exit' to quit): ");
+                item = sc.nextLine();
+
+                if (item.equalsIgnoreCase("exit")) {
+                    System.out.println("Bye!");
+                    sc.close();
+                    return;
+                }
+
+                found = false;
+
+                for (Farmer f : farmers) {
+                    if (f.hasItem(item)) {
+                        f.showItems();
+                        found = true;
+                    }
+                }
+
+                if (!found) {
+                    System.out.println(item + " not found in the market. Please try again.\n");
+                }
+            } while (!found);
+
+            // Ask how many to buy
+            System.out.print("Enter count to buy: ");
+            int qty = sc.nextInt();
+            sc.nextLine(); // move to next line
+
+            for (Farmer f : farmers) {
+                if (f.hasItem(item)) {
+                    f.buy(item, qty);
+                    break;
+                }
+            }
+
+            System.out.println();
+        }
+    }
+}
